@@ -56,7 +56,6 @@ class Car {
 		this._miles = miles;
 		this._gas = gas;
 		this._engineRunning = false;
-		this._engineStatus = 'good';
 		this._gear = 'park';
 	}
 
@@ -72,7 +71,7 @@ class Car {
 				}
 			}, 100);
 		} else {
-			this._engineStatus = 'fuel low';
+			console.log('Fuel low');
 		}
 	}
 
@@ -261,7 +260,6 @@ class Transmission {
 class Engine {
 	constructor(fuelTank) {
 		this._running = false;
-		this._status = 'good';
 		this._fuelTank = fuelTank;
 	}
 
@@ -273,6 +271,9 @@ class Engine {
 		return this._running;
 	}
 
+	// here, the logic from the previous start and stop methods have been reworked into a psuedo-property, running
+	// if set to 'true', this will start an interval and start updating gas
+	// if set to 'false', it will clear the interval
 	set running(state) {
 		this._running = state;
 		if (this._running) {
@@ -285,14 +286,6 @@ class Engine {
 		} else {
 			clearInterval(this._burnGas);
 		}
-	}
-
-	get status() {
-		return this._status;
-	}
-
-	set status(status) {
-		this._status = status;
 	}
 }
 
@@ -386,21 +379,39 @@ still use `honda` as the starting point to access each one. Through `honda`, we
 can get to all the functionality we had.
 
 This configuration is just one option - depending on what information and
-behaviors we need, we could get more detailed or realistic and add even more
-classes. We could de-compose the engine down into individual parts, for
-instance.
+behaviors we need, we could get more detailed and add even more
+classes.
 
-Exactly how we shape associations between classes is up to us, and that is one
-of the benefits of applying SRP. Instead of all the responsibilities jumbled
-into one class, we are encouraged to specifically define how each responsibility
-is related to another. The `Transmission` doesn't need to be connected to the
-odometer. Both the `Car` and `Engine`, however, have direct connections to the
-`FuelTank`. We've established the meaning and purpose of each thing by providing
-their context to other classes.
+## The Benefits of Applying the Single Responsibility Principle
 
-We've isolated behaviors, so if we choose to modify one class, we've reduced the
-chance for unexpected side effects. If there are bugs, we can clearly follow
-behavior from class to class and know what other classes might be affected.
+One of the benefits of applying the single responsibility principle is that it
+informs us while we design. Exactly how we shape relationships between classes
+is up to us, but the single responsibility principle guides to take a scissors
+to larger, complicated classes and break them out into individual purposes.
+
+Instead of all the responsibilities jumbled into one class, we are encouraged to
+specifically define how each responsibility is related to another. We've taken a
+bunch of 'internal' wiring from the `Car` class and exposed it externally. The
+concept of a car is now represented by many classes and _how each class
+interacts_, rather than one giant class and its inner workings.
+
+Separating responsibilities also tends to create more meaningful
+representations. The `Transmission` doesn't need to 'know' about the
+`Odometer`, but `Car` knows about both and acts as a sort of entry point to
+get to other class instances.
+
+Notice that both the `Car` and `Engine`, have direct connections to the
+`FuelTank`. Since `Car` is serving as a 'container' of other parts, it makes
+sense for it to directly know how much gas it has. `Engine` also needs to know
+the amount of gas left in its fuel tank.
+
+Each relationship serves a purpose, and by applying the single responsibility principle, we've established meaning and purpose for each class by giving
+them _context_, neighboring classes that act on or serve each other.
+
+By applying SRP, we've also isolated behaviors. If we choose to modify one
+class, we've reduced the chance for unexpected side effects. If there are bugs,
+we can clearly follow behavior from class to class and know what other classes
+might be affected.
 
 ## Conclusion
 
@@ -413,14 +424,10 @@ it is a good time to ask yourself some questions:
 
 Following SRP tends to create applications with many small classes. In general,
 this tends to make the purpose of a single class easier to understand. SRP
-encourages us to extract out the inner workings of one BIG class into meaningful
-relationships between many smaller classes.
-
-One caveat about the single responsibility principle: _sometimes_, creating too
-many classes can _add_ complexity and be detrimental. The purpose of SRP is to
-reduce complexity and more easily change parts of an application, not make
-things more complicated. Use it as a tool to 'untangle' your classes and
-responsibilities, not has a hard rule you must always follow.
+encourages us to extract out the inner wiring of one BIG class into meaningful
+relationships between many smaller classes. Use it as a tool to 'untangle' your
+classes and responsibilities. Your code will be more organized and easier to
+maintain and change.
 
 [srp]: https://en.wikipedia.org/wiki/Single_responsibility_principle
 [crc]: https://en.wikipedia.org/wiki/Class-responsibility-collaboration_card
